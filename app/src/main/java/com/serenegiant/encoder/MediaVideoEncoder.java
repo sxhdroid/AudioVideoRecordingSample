@@ -22,8 +22,6 @@ package com.serenegiant.encoder;
  * All files in the folder are under this Apache License, Version 2.0.
 */
 
-import java.io.IOException;
-
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
@@ -34,13 +32,15 @@ import android.view.Surface;
 
 import com.serenegiant.glutilsOld.RenderHandler;
 
+import java.io.IOException;
+
 public class MediaVideoEncoder extends MediaEncoder {
 	private static final boolean DEBUG = false;	// TODO set false on release
 	private static final String TAG = "MediaVideoEncoder";
 
 	private static final String MIME_TYPE = "video/avc";
 	// parameters for recording
-    private static final int FRAME_RATE = 25;
+    private static final int FRAME_RATE = 30;
     private static final float BPP = 0.25f;
 
     private final int mWidth;
