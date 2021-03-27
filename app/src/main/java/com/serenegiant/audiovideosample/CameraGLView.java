@@ -22,15 +22,6 @@ package com.serenegiant.audiovideosample;
  * All files in the folder are under this Apache License, Version 2.0.
 */
 
-import java.io.IOException;
-import java.lang.ref.WeakReference;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
-import javax.microedition.khronos.egl.EGLConfig;
-import javax.microedition.khronos.opengles.GL10;
-
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
@@ -51,12 +42,21 @@ import android.view.WindowManager;
 import com.serenegiant.encoder.MediaVideoEncoder;
 import com.serenegiant.glutilsOld.GLDrawer2D;
 
+import java.io.IOException;
+import java.lang.ref.WeakReference;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.opengles.GL10;
+
 /**
  * Sub class of GLSurfaceView to display camera preview and write video frame to capturing surface
  */
 public final class CameraGLView extends GLSurfaceView {
 
-	private static final boolean DEBUG = false; // TODO set false on release
+	private static final boolean DEBUG = true; // TODO set false on release
 	private static final String TAG = "CameraGLView";
 
 	private static final int CAMERA_ID = 0;
@@ -99,7 +99,7 @@ public final class CameraGLView extends GLSurfaceView {
 		if (mHasSurface) {
 			if (mCameraHandler == null) {
 				if (DEBUG) Log.v(TAG, "surface already exist");
-				startPreview(getWidth(),  getHeight());
+				startPreview(mVideoWidth,  mVideoHeight);
 			}
 		}
 	}
@@ -138,12 +138,6 @@ public final class CameraGLView extends GLSurfaceView {
 			mVideoWidth = height;
 			mVideoHeight = width;
 		}
-		queueEvent(new Runnable() {
-			@Override
-			public void run() {
-				mRenderer.updateViewport();
-			}
-		});
 	}
 
 	public int getVideoWidth() {
@@ -196,7 +190,7 @@ public final class CameraGLView extends GLSurfaceView {
 			thread.start();
 			mCameraHandler = thread.getHandler();
 		}
-		mCameraHandler.startPreview(1280, 720/*width, height*/);
+		mCameraHandler.startPreview(width, height);
 	}
 
 	/**
@@ -252,7 +246,7 @@ public final class CameraGLView extends GLSurfaceView {
 			updateViewport();
 			final CameraGLView parent = mWeakParent.get();
 			if (parent != null) {
-				parent.startPreview(width, height);
+				parent.startPreview(parent.mVideoWidth, parent.mVideoHeight);
 			}
 		}
 
@@ -533,8 +527,10 @@ public final class CameraGLView extends GLSurfaceView {
 						}
 					});
 					final SurfaceTexture st = parent.getSurfaceTexture();
-					st.setDefaultBufferSize(previewSize.width, previewSize.height);
-					mCamera.setPreviewTexture(st);
+					if (st != null) {
+						st.setDefaultBufferSize(previewSize.width, previewSize.height);
+						mCamera.setPreviewTexture(st);
+					}
 				} catch (final IOException e) {
 					Log.e(TAG, "startPreview:", e);
 					if (mCamera != null) {
