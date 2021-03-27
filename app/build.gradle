@@ -2,7 +2,6 @@ apply plugin: 'com.android.application'
 
 android {
 	compileSdkVersion versionCompiler
-	buildToolsVersion versionBuildTool
 
 	compileOptions {
 		sourceCompatibility javaSourceCompatibility
@@ -26,7 +25,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
+}
 
+repositories {
+	flatDir {
+		dirs 'libs'
+	}
 }
 
 dependencies {
@@ -39,5 +43,7 @@ dependencies {
 	implementation "androidx.appcompat:appcompat:${androidXVersion}"
 	implementation "androidx.legacy:legacy-support-v4:${androidXLegacyV4}"
 
-	implementation "com.serenegiant:common:${commonLibVersion}"
+//	implementation "com.serenegiant:common:${commonLibVersion}"
+
+	implementation(name: 'common-7.9.1', ext: 'aar')
 }
