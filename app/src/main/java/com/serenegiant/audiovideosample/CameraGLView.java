@@ -586,36 +586,40 @@ public final class CameraGLView extends GLSurfaceView {
 		 * @param params
 		 */
 		private final void setRotation(final Camera.Parameters params) {
-			if (DEBUG) Log.v(TAG, "setRotation:");
-			final CameraGLView parent = mWeakParent.get();
-			if (parent == null) return;
+			try {
+				if (DEBUG) Log.v(TAG, "setRotation:");
+				final CameraGLView parent = mWeakParent.get();
+				if (parent == null) return;
 
-			final Display display = ((WindowManager)parent.getContext()
-				.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-			final int rotation = display.getRotation();
-			int degrees = 0;
-			switch (rotation) {
-				case Surface.ROTATION_0: degrees = 0; break;
-				case Surface.ROTATION_90: degrees = 90; break;
-				case Surface.ROTATION_180: degrees = 180; break;
-				case Surface.ROTATION_270: degrees = 270; break;
-			}
-			// get whether the camera is front camera or back camera
-			final Camera.CameraInfo info =
-					new android.hardware.Camera.CameraInfo();
+				final Display display = ((WindowManager)parent.getContext()
+						.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+				final int rotation = display.getRotation();
+				int degrees = 0;
+				switch (rotation) {
+					case Surface.ROTATION_0: degrees = 0; break;
+					case Surface.ROTATION_90: degrees = 90; break;
+					case Surface.ROTATION_180: degrees = 180; break;
+					case Surface.ROTATION_270: degrees = 270; break;
+				}
+				// get whether the camera is front camera or back camera
+				final Camera.CameraInfo info =
+						new android.hardware.Camera.CameraInfo();
 				android.hardware.Camera.getCameraInfo(CAMERA_ID, info);
-			mIsFrontFace = (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT);
-			if (mIsFrontFace) {	// front camera
-				degrees = (info.orientation + degrees) % 360;
-				degrees = (360 - degrees) % 360;  // reverse
-			} else {  // back camera
-				degrees = (info.orientation - degrees + 360) % 360;
+				mIsFrontFace = (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT);
+				if (mIsFrontFace) {	// front camera
+					degrees = (info.orientation + degrees) % 360;
+					degrees = (360 - degrees) % 360;  // reverse
+				} else {  // back camera
+					degrees = (info.orientation - degrees + 360) % 360;
+				}
+				// apply rotation setting
+				mCamera.setDisplayOrientation(degrees);
+				parent.mRotation = degrees;
+				// XXX This method fails to call and camera stops working on some devices.
+//				params.setRotation(degrees);
+			} catch (RuntimeException e) {
+				if (DEBUG) Log.e(TAG, "setRotation:" + e.getMessage());
 			}
-			// apply rotation setting
-			mCamera.setDisplayOrientation(degrees);
-			parent.mRotation = degrees;
-			// XXX This method fails to call and camera stops working on some devices.
-//			params.setRotation(degrees);
 		}
 
 	}
