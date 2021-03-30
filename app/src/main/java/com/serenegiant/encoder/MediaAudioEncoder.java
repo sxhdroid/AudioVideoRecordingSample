@@ -22,9 +22,6 @@ package com.serenegiant.encoder;
  * All files in the folder are under this Apache License, Version 2.0.
 */
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaCodec;
@@ -33,6 +30,9 @@ import android.media.MediaCodecList;
 import android.media.MediaFormat;
 import android.media.MediaRecorder;
 import android.util.Log;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
 
 public class MediaAudioEncoder extends MediaEncoder {
 	private static final boolean DEBUG = false;	// TODO set false on release
@@ -146,19 +146,25 @@ public class MediaAudioEncoder extends MediaEncoder {
 			                int readBytes;
 			                audioRecord.startRecording();
 			                try {
-					    		for (; mIsCapturing && !mRequestStop && !mIsEOS ;) {
-					    			// read audio data from internal mic
+								for (; mIsCapturing && !mRequestStop && !mIsEOS; ) {
+									// read audio data from internal mic
 									buf.clear();
-					    			readBytes = audioRecord.read(buf, SAMPLES_PER_FRAME);
-					    			if (readBytes > 0) {
-					    			    // set audio data to encoder
+									readBytes = audioRecord.read(buf, SAMPLES_PER_FRAME);
+									if (isMute) {// 静音下将数据置0
+										try {
+											buf.put(new byte[readBytes], 0, readBytes);
+										} catch (Exception e) {
+										}
+									}
+									if (readBytes > 0) {
+										// set audio data to encoder
 										buf.position(readBytes);
 										buf.flip();
-					    				encode(buf, readBytes, getPTSUs());
-					    				frameAvailableSoon();
-					    				cnt++;
-					    			}
-					    		}
+										encode(buf, readBytes, getPTSUs());
+										frameAvailableSoon();
+										cnt++;
+									}
+								}
 			    				frameAvailableSoon();
 			                } finally {
 			                	audioRecord.stop();

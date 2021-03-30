@@ -22,13 +22,13 @@ package com.serenegiant.encoder;
  * All files in the folder are under this Apache License, Version 2.0.
 */
 
-import java.io.IOException;
-import java.lang.ref.WeakReference;
-import java.nio.ByteBuffer;
-
 import android.media.MediaCodec;
 import android.media.MediaFormat;
 import android.util.Log;
+
+import java.io.IOException;
+import java.lang.ref.WeakReference;
+import java.nio.ByteBuffer;
 
 public abstract class MediaEncoder implements Runnable {
 	private static final boolean DEBUG = false;	// TODO set false on release
@@ -37,6 +37,8 @@ public abstract class MediaEncoder implements Runnable {
 	protected static final int TIMEOUT_USEC = 10000;	// 10[msec]
 	protected static final int MSG_FRAME_AVAILABLE = 1;
 	protected static final int MSG_STOP_RECORDING = 9;
+
+	protected boolean isMute;
 
 	public interface MediaEncoderListener {
 		public void onPrepared(MediaEncoder encoder);
@@ -105,6 +107,10 @@ public abstract class MediaEncoder implements Runnable {
     	final MediaMuxerWrapper muxer = mWeakMuxer.get();
     	return muxer != null ? muxer.getOutputPath() : null;
     }
+
+	/*package*/ void setMute(boolean mute) {
+		isMute = mute;
+	}
 
     /**
      * the method to indicate frame data is soon available or already available
